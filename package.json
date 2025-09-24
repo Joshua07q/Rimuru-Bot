@@ -10,6 +10,7 @@
         "plugins": "plugins"
     },
     "scripts": {
+        "build": "echo 'Skipping build step...'",
         "start": "node index.js",
         "test": "node test.js",
         "test2": "nodemon index.js"
