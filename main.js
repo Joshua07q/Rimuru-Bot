@@ -94,7 +94,29 @@ if (!opts['test']) {
   }, 30 * 1000)
 }
 
-if (opts['server']) require('./server')(global.conn, PORT)
+const qrcode = require("qrcode");
+const express = require("express");
+
+const app = express();
+let qrString = null;
+
+// Listen for QR events from Baileys
+conn.ev.on("qr", async qr => {
+  qrString = qr;
+  console.log(`📲 Scan QR at: https://${process.env.RAILWAY_STATIC_URL || "localhost:"+PORT}/qr`);
+});
+
+// Serve the QR as PNG in browser
+app.get("/qr", async (req, res) => {
+  if (!qrString) {
+    return res.send("❌ No QR yet. Wait for bot to request one.");
+  }
+  const qrPng = await qrcode.toDataURL(qrString);
+  res.send(`<h2>📱 Scan this with WhatsApp Linked Devices</h2><img src="${qrPng}" />`);
+});
+
+app.listen(PORT, () => console.log(`🌐 Server running on port ${PORT}`));
+
 
 async function connectionUpdate(update) {
   console.log(require('chalk').redBright('Mengaktifkan Bot, Harap tunggu sebentar...'))
