@@ -80,13 +80,20 @@ const connectionOptions = {
 
 global.conn = simple.makeWASocket(connectionOptions)
 
+// ✅ Add this block
+global.conn.ev.on('qr', qr => {
+  console.log('📲 Scan the QR below with WhatsApp → Linked Devices')
+  generate(qr, { small: true })
+})
+
+
 if (!opts['test']) {
   if (global.db) setInterval(async () => {
     if (global.db.data) await global.db.write()
     if (opts['autocleartmp'] && (global.support || {}).find) (tmp = [os.tmpdir(), 'tmp'], tmp.forEach(filename => cp.spawn('find', [filename, '-amin', '3', '-type', 'f', '-delete'])))
   }, 30 * 1000)
 }
-if (opts['big-qr'] || opts['server']) conn.ev.on('qr', qr => generate(qr, { small: false }))
+
 if (opts['server']) require('./server')(global.conn, PORT)
 
 async function connectionUpdate(update) {
